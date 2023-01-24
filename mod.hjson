@@ -2,13 +2,13 @@
 displayName: "Scala Mod Template"
 
 #the internal name of your mod
-name: "example-scala-mod"
+name: "scala-mod"
 
 #your name
 author: "You"
 
 #the fully qualified main class of the mod
-main: "example.ExampleScalaMod"
+main: "crazy.CrazyScalaMod"
 
 #the mod description as seen in the mod dialog
 description: "A Mindustry Scala mod template."

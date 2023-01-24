@@ -19,10 +19,7 @@ buildscript{
 
 apply plugin: "scala"
 
-sourceSets.main.java.srcDirs = ["src/"]
 sourceSets.main.scala.srcDirs = ["src/"]
-
-def scalaClasspath = scalaRuntime.inferScalaClasspath(configurations.compileClasspath)
 
 repositories{
     mavenCentral()
@@ -32,7 +29,7 @@ repositories{
 dependencies{
     compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
     compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
-    compileOnly "org.scala-lang:scala3-library_3:$scalaVersion"
+    implementation "org.scala-lang:scala3-library_3:$scalaVersion"
 }
 
 compileScala{
