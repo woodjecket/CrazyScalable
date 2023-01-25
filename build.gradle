@@ -36,9 +36,6 @@ dependencies{
 compileScala{
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
-    scalaCompileOptions.additionalParameters = [
-            "-target:jvm-1.8"
-    ]
 }
 
 
