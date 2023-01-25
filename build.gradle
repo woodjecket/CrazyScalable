@@ -33,10 +33,10 @@ dependencies{
 }
 
 compileScala{
-    sourceCompatibility = JavaVersion.VERSION_1_5
-    targetCompatibility = JavaVersion.VERSION_1_5
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
     scalaCompileOptions.additionalParameters = [
-            "-target:jvm-1.5"
+            "-target:jvm-1.7"
     ]
 }
 
