@@ -12,6 +12,6 @@ class CrazyScalaMod() extends Mod(){
     val itemList:List[(Item,Short)] = Vars.content.items().toArray.toList.map(i => (i, i.id))
     val sortedList = itemList.sortWith((l1,_)=>l1._2.compareTo(l1._2)>0)
     sortedList.foreach[Unit](i => Log.info("@ is id @", i._1.asInstanceOf[AnyRef], i._2.asInstanceOf[AnyRef]))
-    Log.info("RUN SCALA ON ANDROID!!!!!!!!!!!!!!!!","")
+    if(Vars.android)Log.info("RUN SCALA ON ANDROID!!!!!!!!!!!!!!!!","")
   }
 }
