@@ -8,13 +8,14 @@ buildscript{
     
     ext{
         //the build number that this mod is made for
-        mindustryVersion = 'v143'
+        mindustryVersion = 'v145'
         scalaVersion = "2.11.12"
         sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
     }
     
     dependencies{
         classpath "org.scala-lang:scala-library:$scalaVersion"
+	classpath 'com.guardsquare:proguard-gradle:7.1.0'
     }
 }
 
