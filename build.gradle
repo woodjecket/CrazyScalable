@@ -89,8 +89,7 @@ task myProguardTask(type: proguard.gradle.ProGuardTask) {
     dependsOn "jar"
     injars file("$buildDir/libs/${project.archivesBaseName}Desktop.jar")
     outjars file("$buildDir/libs/${project.archivesBaseName}Mini.jar")
-    dontwarn()
-    dontpreverify()
+    ignorewarnings()
     // Automatically handle the Java version of this build.
     if (System.getProperty('java.version').startsWith('1.')) {
         // Before Java 9, the runtime classes were packaged in a single jar file.
@@ -110,7 +109,7 @@ task deploy(type: Jar){
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     archiveFileName = "${project.archivesBaseName}.jar"
 
-    from{ [zipTree("$buildDir/libs/${project.archivesBaseName}Desktop.jar"), zipTree("$buildDir/libs/${project.archivesBaseName}Android.jar")] }
+    from{ [zipTree("$buildDir/libs/${project.archivesBaseName}Mini.jar"), zipTree("$buildDir/libs/${project.archivesBaseName}Android.jar")] }
 
     doLast{
         delete{
