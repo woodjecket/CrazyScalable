@@ -8,13 +8,14 @@ buildscript{
     
     ext{
         //the build number that this mod is made for
-        mindustryVersion = 'v144.3'
+        mindustryVersion = 'v145'
         scalaVersion = "2.11.12"
         sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
     }
     
     dependencies{
         classpath "org.scala-lang:scala-library:$scalaVersion"
+	classpath 'com.guardsquare:proguard-gradle:7.1.0'
 	classpath 'com.guardsquare:proguard-gradle:7.1.0'
     }
 }
@@ -50,7 +51,7 @@ configurations.all {
 
 
 task jarAndroid{
-    dependsOn "jar"
+    dependsOn "myProguardTask"
 
     doLast{
         if(!sdkRoot || !new File(sdkRoot).exists()) throw new GradleException("No valid Android SDK found. Ensure that ANDROID_HOME is set to your Android SDK directory.");
@@ -63,7 +64,7 @@ task jarAndroid{
         def dependencies = (configurations.compileClasspath.asList() + configurations.runtimeClasspath.asList() + [new File(platformRoot, "android.jar")]).collect{ "--classpath $it.path" }.join(" ")
 
         //dex and desugar files - this requires d8 in your PATH
-        "d8 $dependencies --min-api 14 --output ${project.archivesBaseName}Android.jar ${project.archivesBaseName}Desktop.jar"
+        "d8 $dependencies --min-api 14 --output ${project.archivesBaseName}Android.jar ${project.archivesBaseName}Mini.jar"
             .execute(null, new File("$buildDir/libs")).waitForProcessOutput(System.out, System.err)
     }
 }
@@ -85,6 +86,14 @@ jar{
     }
 }
 
+task myProguardTask(type: proguard.gradle.ProGuardTask) {
+    dependsOn "jar"
+    injars file("$buildDir/libs/${project.archivesBaseName}Desktop.jar")
+    outjars file("$buildDir/libs/${project.archivesBaseName}Mini.jar")
+    dontwarn
+    keep("class cd.CDMod")
+}
+
 task deploy(type: Jar){
     dependsOn jarAndroid
     dependsOn jar
@@ -95,7 +104,7 @@ task deploy(type: Jar){
 
     doLast{
         delete{
-            delete "$buildDir/libs/${project.archivesBaseName}Desktop.jar"
+            delete "$buildDir/libs/${project.archivesBaseName}Mini.jar"
             delete "$buildDir/libs/${project.archivesBaseName}Android.jar"
         }
     }
