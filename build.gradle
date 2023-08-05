@@ -14,9 +14,8 @@ buildscript{
     }
     
     dependencies{
-        classpath "org.scala-lang:scala-library:$scalaVersion"
-	classpath 'com.guardsquare:proguard-gradle:7.1.0'
-	classpath 'com.guardsquare:proguard-gradle:7.1.0'
+    classpath "org.scala-lang:scala-library:$scalaVersion"
+	classpath 'com.guardsquare:proguard-gradle:7.3.2'
     }
 }
 
@@ -90,8 +89,19 @@ task myProguardTask(type: proguard.gradle.ProGuardTask) {
     dependsOn "jar"
     injars file("$buildDir/libs/${project.archivesBaseName}Desktop.jar")
     outjars file("$buildDir/libs/${project.archivesBaseName}Mini.jar")
-    dontwarn
-    keep("class cd.CDMod")
+    dontwarn()
+    dontpreverify()
+    // Automatically handle the Java version of this build.
+    if (System.getProperty('java.version').startsWith('1.')) {
+        // Before Java 9, the runtime classes were packaged in a single jar file.
+        libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
+    } else {
+        // As of Java 9, the runtime classes are packaged in modular jmod files.
+        libraryjars "${System.getProperty('java.home')}/jmods/java.base.jmod", jarfilter: '!**.jar', filter: '!module-info.class'
+        //libraryjars "${System.getProperty('java.home')}/jmods/....."
+    }
+    verbose()
+    keep("class crazy.**{*;}")
 }
 
 task deploy(type: Jar){
