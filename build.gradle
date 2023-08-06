@@ -3,19 +3,18 @@ version '1.0'
 buildscript{
     repositories{
         mavenCentral()
-	google()
     }
-    
+
     ext{
         //the build number that this mod is made for
         mindustryVersion = 'v144.3'
         scalaVersion = "2.11.12"
         sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
     }
-    
+
     dependencies{
-    classpath "org.scala-lang:scala-library:$scalaVersion"
-	classpath 'com.guardsquare:proguard-gradle:7.3.2'
+        classpath "org.scala-lang:scala-library:$scalaVersion"
+        classpath 'com.guardsquare:proguard-gradle:7.3.2'
     }
 }
 
@@ -26,23 +25,25 @@ sourceSets.main.scala.srcDirs = ["src/"]
 repositories{
     mavenCentral()
     maven{ url 'https://www.jitpack.io' }
+    google()
 }
 
 dependencies{
     compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
     compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
     implementation "org.scala-lang:scala-library:$scalaVersion"
+    implementation "com.android.support:multidex:1.0.3"
 }
 
 compileScala{
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_16
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 //force arc version
-configurations.all {
-    resolutionStrategy.eachDependency { details ->
-        if (details.requested.group == 'com.github.Anuken.Arc') {
+configurations.all{
+    resolutionStrategy.eachDependency{ details ->
+        if(details.requested.group == 'com.github.Anuken.Arc'){
             details.useVersion "$mindustryVersion"
         }
     }
@@ -55,7 +56,7 @@ task jarAndroid{
     doLast{
         if(!sdkRoot || !new File(sdkRoot).exists()) throw new GradleException("No valid Android SDK found. Ensure that ANDROID_HOME is set to your Android SDK directory.");
 
-        def platformRoot = new File("$sdkRoot/platforms/").listFiles().sort().reverse().find{ f -> new File(f, "android.jar").exists()}
+        def platformRoot = new File("$sdkRoot/platforms/").listFiles().sort().reverse().find{ f -> new File(f, "android.jar").exists() }
 
         if(!platformRoot) throw new GradleException("No android.jar found. Ensure that you have an Android platform installed.")
 
@@ -64,12 +65,12 @@ task jarAndroid{
 
         //dex and desugar files - this requires d8 in your PATH
         "d8 $dependencies --min-api 14 --output ${project.archivesBaseName}Android.jar ${project.archivesBaseName}Mini.jar"
-            .execute(null, new File("$buildDir/libs")).waitForProcessOutput(System.out, System.err)
+                .execute(null, new File("$buildDir/libs")).waitForProcessOutput(System.out, System.err)
     }
 }
 
 jar{
-	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     archiveFileName = "${project.archivesBaseName}Desktop.jar"
 
     from{
@@ -85,16 +86,16 @@ jar{
     }
 }
 
-task myProguardTask(type: proguard.gradle.ProGuardTask) {
+task myProguardTask(type: proguard.gradle.ProGuardTask){
     dependsOn "jar"
     injars file("$buildDir/libs/${project.archivesBaseName}Desktop.jar")
     outjars file("$buildDir/libs/${project.archivesBaseName}Mini.jar")
     ignorewarnings()
     // Automatically handle the Java version of this build.
-    if (System.getProperty('java.version').startsWith('1.')) {
+    if(System.getProperty('java.version').startsWith('1.')){
         // Before Java 9, the runtime classes were packaged in a single jar file.
         libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
-    } else {
+    }else{
         // As of Java 9, the runtime classes are packaged in modular jmod files.
         libraryjars "${System.getProperty('java.home')}/jmods/java.base.jmod", jarfilter: '!**.jar', filter: '!module-info.class'
         //libraryjars "${System.getProperty('java.home')}/jmods/....."
@@ -116,5 +117,13 @@ task deploy(type: Jar){
             delete "$buildDir/libs/${project.archivesBaseName}Mini.jar"
             delete "$buildDir/libs/${project.archivesBaseName}Android.jar"
         }
+    }
+}
+
+tasks.register('game'){
+    dependsOn myProguardTask
+    doLast{
+        "mv -f $buildDir/libs/${project.archivesBaseName}Mini.jar $buildDir/libs/mindustry_mod".execute().waitForProcessOutput(System.out, System.err)
+        "/Users/abc/Mindustry.app/Contents/MacOS/Mindustry ; exit".execute().waitForProcessOutput(System.out, System.err)
     }
 }
